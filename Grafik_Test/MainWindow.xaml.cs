@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Grafik_Test.BL;
+using Grafik_Test.Model;
 
 namespace Grafik_Test
 {
@@ -29,24 +20,78 @@ namespace Grafik_Test
         private void btPaint_Click(object sender, RoutedEventArgs e)
         {
             canvasFrafic.Children.Clear();
-            OsiX_Y();
+            OsiX_Y("x (даты)" , "y (кол-во)");
+            var sell = Model.GrahtSell.SellModels(); //получаем продажи в формате  16.10.2021. 10 шт
+            List<BL.Point> points = GetPoints(sell); // получим  точки
+            GetLines(points);
+        }
+
+        /// <summary>
+        /// рисуем  график по  точкам 
+        /// </summary>
+        /// <param name="points"></param>
+        private void GetLines(List<BL.Point> points)
+        {
+            for (int i = 0; i < points.Count-1; i++)
+            {
+                canvasFrafic.Children.Add(
+                    NewLine(points[i].X , points[i].Y , points[i+1].X
+                    , points[i+1].Y ));
+            }
+        }
+
+        /// <summary>
+        /// получаем  точки  для графика
+        /// </summary>
+        /// <param name="sell"></param>
+        /// <returns></returns>
+        private List<BL.Point> GetPoints(List<GrahtSellModel> sell)
+        {
+            List < BL.Point > point = new();
+            int x= -800;
+            foreach (var item in sell)
+            {
+                point.Add(new BL.Point()
+                {
+                    X = x , Y = item.Count *5
+                });
+                x +=5;
+            }
+            return point;
         }
 
         /// <summary>
         /// рисует  ось координат
         /// </summary>
-        private void OsiX_Y()
+        private void OsiX_Y(string xName , string yName)
         {
+            //надпись
+            canvasFrafic.Children.Add(new Label()
+            {
+                Content = xName , Padding = new Thickness( canvasFrafic.ActualWidth -100 ,canvasFrafic.ActualHeight/2 +50 ,
+                100 , canvasFrafic.ActualHeight / 2)
+            });
+
+            //надпись
+            canvasFrafic.Children.Add(new Label()
+            {
+                Content = yName,
+                Padding = new Thickness(canvasFrafic.ActualWidth/2 - 100 , 0 , 0 , canvasFrafic.ActualHeight)
+            });
+
+            //пунктиры
             for (int i = (int)canvasFrafic.ActualWidth / 2 * -1; i < (int)canvasFrafic.ActualWidth / 2; i += 10)
             {
                 canvasFrafic.Children.Add(NewLine(i, 5, i, -5));
             }
-
+            //пунктиры
             for (int i = (int)canvasFrafic.ActualHeight / 2 * -1; i < (int)canvasFrafic.ActualHeight / 2; i += 10)
             {
                 canvasFrafic.Children.Add(NewLine(5, i, -5, i));
             }
+            //x
             canvasFrafic.Children.Add(NewLine(canvasFrafic.ActualWidth / 2 * -1, 0, canvasFrafic.ActualWidth / 2, 0));
+            //y
             canvasFrafic.Children.Add(NewLine(0, canvasFrafic.ActualHeight / 2, 0, canvasFrafic.ActualHeight / 2 * -1));
         }
 
