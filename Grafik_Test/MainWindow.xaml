@@ -19,9 +19,19 @@
         </Grid.RowDefinitions>
 
 
-        <Button Margin="5" Grid.Column="1" Grid.Row="0" x:Name="btPaint" Content="Рисовать" Click="btPaint_Click">
+        <Button Margin="5" Grid.Column="1"
+                Grid.Row="0" x:Name="btPaint"
+                Content="Рисовать" Click="btPaint_Click"
+               
+                >
             
         </Button>
+
+        <Button x:Name="btSave"
+                Content="сохранить" Grid.Row="1" Grid.Column="0"
+                Click="btSave_Click"
+                
+                ></Button>
         
         
         

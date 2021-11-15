@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Grafik_Test.BL;
 using Grafik_Test.Model;
+using Microsoft.Win32;
 
 namespace Grafik_Test
 {
@@ -109,6 +112,46 @@ namespace Grafik_Test
                 Stroke = Brushes.Black
             };
             return line;
+        }
+
+
+        private void btSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (canvasFrafic != null) //если в pictureBox есть изображение
+            {
+               
+                SaveFileDialog savedialog = new SaveFileDialog();
+                savedialog.Title = "Сохранить картинку как...";
+                //отображать ли предупреждение, если пользователь указывает имя уже существующего файла
+                savedialog.OverwritePrompt = true;
+                //отображать ли предупреждение, если пользователь указывает несуществующий путь
+                savedialog.CheckPathExists = true;
+                //список форматов файла, отображаемый в поле "Тип файла"
+                savedialog.Filter = "Image Files(*.PDF)|*.PDF|Image Files(*.JPG)|*.JPG|Image Files(*.GIF)|*.GIF|Image Files(*.PNG)|*.PNG|All files (*.*)|*.*";
+               
+                //отображается ли кнопка "Справка" в диалоговом окне
+                if (savedialog.ShowDialog() == true) //если в диалоговом окне нажата кнопка "ОК"
+                {
+                    try
+                    {
+                        RenderTargetBitmap renderBitmap = new RenderTargetBitmap
+                            ((int)canvasFrafic.ActualWidth, (int)canvasFrafic.ActualHeight
+                            , 100d, 100d, PixelFormats.Default
+                            );
+                        renderBitmap.Render(this);
+                        using (FileStream outStream = new FileStream(savedialog.FileName, FileMode.Create))
+                        {
+                            BmpBitmapEncoder encoder = new BmpBitmapEncoder();
+                            encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+                            encoder.Save(outStream);
+                        }
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Невозможно сохранить изображениe "); 
+                    }
+                }
+            }
         }
     }
 }
