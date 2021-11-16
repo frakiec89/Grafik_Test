@@ -35,7 +35,7 @@
         
         
         
-        <Canvas x:Name="canvasFrafic" Grid.Column="1" Grid.Row="1">
+        <Canvas x:Name="canvasGrafic" Grid.Column="1" Grid.Row="1">
            
         </Canvas>
 

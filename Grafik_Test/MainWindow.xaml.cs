@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,11 +23,31 @@ namespace Grafik_Test
 
         private void btPaint_Click(object sender, RoutedEventArgs e)
         {
-            canvasFrafic.Children.Clear();
+            canvasGrafic.Children.Clear();
             OsiX_Y("x (даты)" , "y (кол-во)");
             var sell = Model.GrahtSell.SellModels(); //получаем продажи в формате  16.10.2021. 10 шт
             List<BL.Point> points = GetPoints(sell); // получим  точки
             GetLines(points);
+            GetLabel(points);
+
+        }
+
+        private void GetLabel(List<BL.Point> points)
+        {
+            Grafic grafic = new Grafic(canvasGrafic.ActualWidth, canvasGrafic.ActualHeight);
+
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                if (i % 5 == 0)
+                {
+                    var label = new Label() { Content =
+                        points[i].Content, RenderTransform = new RotateTransform(90)
+                    };
+                    Canvas.SetLeft(label, grafic.GetXforWPF( points[i].X) + 5);
+                    Canvas.SetTop(label, canvasGrafic.ActualHeight / 2 + 5);
+                    canvasGrafic.Children.Add(label);
+                }
+            }
         }
 
         /// <summary>
@@ -37,9 +58,9 @@ namespace Grafik_Test
         {
             for (int i = 0; i < points.Count-1; i++)
             {
-                canvasFrafic.Children.Add(
-                    NewLine(points[i].X , points[i].Y , points[i+1].X
-                    , points[i+1].Y ));
+                   canvasGrafic.Children.Add(
+                   NewLine(points[i].X, points[i].Y, points[i + 1].X
+                   , points[i + 1].Y));
             }
         }
 
@@ -56,7 +77,7 @@ namespace Grafik_Test
             {
                 point.Add(new BL.Point()
                 {
-                    X = x , Y = item.Count *5
+                    X = x , Y = item.Count *5 , Content = $"{item.Date.Day}.{item.Date.Month}.{item.Date.Year}"  , VisebleContent =true
                 });
                 x +=5;
             }
@@ -69,38 +90,39 @@ namespace Grafik_Test
         private void OsiX_Y(string xName , string yName)
         {
             //надпись
-            canvasFrafic.Children.Add(new Label()
+            canvasGrafic.Children.Add(new Label()
             {
-                Content = xName , Padding = new Thickness( canvasFrafic.ActualWidth -100 ,canvasFrafic.ActualHeight/2 +50 ,
-                100 , canvasFrafic.ActualHeight / 2)
+                Content = xName , Padding = new Thickness(
+                    canvasGrafic.ActualWidth -100 ,canvasGrafic.ActualHeight/2 +50 ,
+                100 , canvasGrafic.ActualHeight / 2)
             });
 
             //надпись
-            canvasFrafic.Children.Add(new Label()
+            canvasGrafic.Children.Add(new Label()
             {
                 Content = yName,
-                Padding = new Thickness(canvasFrafic.ActualWidth/2 - 100 , 0 , 0 , canvasFrafic.ActualHeight)
+                Padding = new Thickness(canvasGrafic.ActualWidth/2 - 100 , 0 , 0 , canvasGrafic.ActualHeight)
             });
 
             //пунктиры
-            for (int i = (int)canvasFrafic.ActualWidth / 2 * -1; i < (int)canvasFrafic.ActualWidth / 2; i += 10)
+            for (int i = (int)canvasGrafic.ActualWidth / 2 * -1; i < (int)canvasGrafic.ActualWidth / 2; i += 10)
             {
-                canvasFrafic.Children.Add(NewLine(i, 5, i, -5));
+                canvasGrafic.Children.Add(NewLine(i, 5, i, -5));
             }
             //пунктиры
-            for (int i = (int)canvasFrafic.ActualHeight / 2 * -1; i < (int)canvasFrafic.ActualHeight / 2; i += 10)
+            for (int i = (int)canvasGrafic.ActualHeight / 2 * -1; i < (int)canvasGrafic.ActualHeight / 2; i += 10)
             {
-                canvasFrafic.Children.Add(NewLine(5, i, -5, i));
+                canvasGrafic.Children.Add(NewLine(5, i, -5, i));
             }
             //x
-            canvasFrafic.Children.Add(NewLine(canvasFrafic.ActualWidth / 2 * -1, 0, canvasFrafic.ActualWidth / 2, 0));
+            canvasGrafic.Children.Add(NewLine(canvasGrafic.ActualWidth / 2 * -1, 0, canvasGrafic.ActualWidth / 2, 0));
             //y
-            canvasFrafic.Children.Add(NewLine(0, canvasFrafic.ActualHeight / 2, 0, canvasFrafic.ActualHeight / 2 * -1));
+            canvasGrafic.Children.Add(NewLine(0, canvasGrafic.ActualHeight / 2, 0, canvasGrafic.ActualHeight / 2 * -1));
         }
 
         private System.Windows.Shapes.Line NewLine(double x1 , double y1 , double x2 , double y2)
         {
-            Grafic grafic = new Grafic(canvasFrafic.ActualWidth, canvasFrafic.ActualHeight);
+            Grafic grafic = new Grafic(canvasGrafic.ActualWidth, canvasGrafic.ActualHeight);
             var l = grafic.GetLine(x1 ,y1,x2 , y2);
             var line = new System.Windows.Shapes.Line()
             {
@@ -117,7 +139,7 @@ namespace Grafik_Test
 
         private void btSave_Click(object sender, RoutedEventArgs e)
         {
-            if (canvasFrafic != null) //если в pictureBox есть изображение
+            if (canvasGrafic != null) //если в pictureBox есть изображение
             {
                
                 SaveFileDialog savedialog = new SaveFileDialog();
@@ -127,7 +149,7 @@ namespace Grafik_Test
                 //отображать ли предупреждение, если пользователь указывает несуществующий путь
                 savedialog.CheckPathExists = true;
                 //список форматов файла, отображаемый в поле "Тип файла"
-                savedialog.Filter = "Image Files(*.PDF)|*.PDF|Image Files(*.JPG)|*.JPG|Image Files(*.GIF)|*.GIF|Image Files(*.PNG)|*.PNG|All files (*.*)|*.*";
+                savedialog.Filter = "Image Files(*.PNG)|*.PDF|Image Files(*.JPG)|*.JPG|Image Files(*.GIF)|*.GIF|Image Files(*.PNG)|*.PNG|All files (*.*)|*.*";
                
                 //отображается ли кнопка "Справка" в диалоговом окне
                 if (savedialog.ShowDialog() == true) //если в диалоговом окне нажата кнопка "ОК"
@@ -135,7 +157,7 @@ namespace Grafik_Test
                     try
                     {
                         RenderTargetBitmap renderBitmap = new RenderTargetBitmap
-                            ((int)canvasFrafic.ActualWidth, (int)canvasFrafic.ActualHeight
+                            ((int)canvasGrafic.ActualWidth, (int)canvasGrafic.ActualHeight
                             , 100d, 100d, PixelFormats.Default
                             );
                         renderBitmap.Render(this);
